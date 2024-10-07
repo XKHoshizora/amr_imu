@@ -13,10 +13,15 @@ find_package(catkin REQUIRED COMPONENTS
   sensor_msgs
   tf
   geometry_msgs
+  dynamic_reconfigure
+  imu_filter_madgwick
+  robot_localization
 )
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LIBMODBUS REQUIRED libmodbus)
 
 
 ## Uncomment this if the package has a setup.py. This macro ensures
@@ -120,6 +125,7 @@ catkin_package(
 include_directories(
 # include
   ${catkin_INCLUDE_DIRS}
+  ${LIBMODBUS_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
@@ -157,6 +163,7 @@ add_dependencies(imu_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_
 target_link_libraries(imu_node
   ${catkin_LIBRARIES}
 )
+
 
 #############
 ## Install ##

@@ -1,0 +1,46 @@
+<launch>
+    <!-- 启动 IMU 数据发布节点 -->
+    <include file="$(find amr_imu)/launch/imu_publisher.launch" />
+
+    <!-- Madgwick 滤波器 -->
+    <group if="$(arg use_madgwick)">
+        <!-- 启动 Madgwick 滤波器节点 -->
+        <node pkg="imu_filter_madgwick" type="imu_filter_node" name="imu_madgwick_filter" output="screen">
+            <param name="use_mag" value="false" />  <!-- 禁用磁力计数据 -->
+            <param name="publish_tf" value="false" /> <!-- 不发布 TF 变换 -->
+            <param name="fixed_frame" value="base_link" /> <!-- 固定帧为 base_link -->
+
+            <!-- 将原始 IMU 数据话题 /imu 重映射为 /imu/data_raw -->
+            <!-- 将滤波后的 IMU 数据发布到 /imu_filtered -->
+            <remap from="/imu/data_raw" to="/imu" />
+            <remap from="/imu/data" to="/imu_filtered" />
+        </node>
+    </group>
+
+    <!-- Complementary Filter 互补滤波器 -->
+    <group if="$(arg use_complementary)">
+        <!-- 启动 Complementary Filter 互补滤波器节点 -->
+        <node name="complementary_filter" pkg="imu_complementary_filter" type="complementary_filter_node" output="screen">
+            <rosparam file="$(find amr_imu)/config/complementary_filter.yaml" command="load"/>
+            <!-- 从 /imu 获取原始数据并发布到 /imu_filtered -->
+            <remap from="/imu/data_raw" to="/imu" />
+            <remap from="/imu/data" to="/imu_filtered" />
+        </node>
+    </group>
+
+    <!-- 扩展卡尔曼滤波器 (EKF) -->
+    <group if="$(arg use_ekf)">
+        <!-- 启动 EKF 滤波器节点 -->
+        <node pkg="robot_localization" type="ekf_localization_node" name="ekf_filter" output="screen">
+            <rosparam file="$(find amr_imu)/config/ekf.yaml" command="load" />
+            <!-- 从 /imu 获取原始数据，并将滤波后的数据发布到 /imu_filtered -->
+            <remap from="/imu/data_raw" to="/imu" />
+            <remap from="/odometry/filtered" to="/imu_filtered" />
+        </node>
+    </group>
+
+    <!-- 参数选择：默认启用 Madgwick 滤波器 -->
+    <arg name="use_madgwick" default="true" />
+    <arg name="use_complementary" default="false" />
+    <arg name="use_ekf" default="false" />
+</launch>
