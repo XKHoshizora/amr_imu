@@ -1,6 +1,6 @@
 <launch>
     <!-- 启动 IMU 数据发布节点 -->
-    <include file="$(find amr_imu)/launch/imu_publisher.launch" />
+    <include file="$(find amr_imu)/launch/imu.launch" />
 
     <!-- Madgwick 滤波器 -->
     <group if="$(arg use_madgwick)">

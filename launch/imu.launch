@@ -1,6 +1,6 @@
 <launch>
     <!-- 启动 IMU 数据发布节点 -->
-    <node name="amr_imu_publisher" pkg="om_modbus_master" type="amr_imu_publisher" output="screen">
+    <node name="amr_imu" pkg="om_modbus_master" type="amr_imu_node" output="screen">
         <!-- 设备IP和端口号，可以在代码中使用这些参数 -->
         <param name="device_ip" value="192.168.0.10" />
         <param name="device_port" value="502" />
